@@ -1,0 +1,612 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Store Service API",
+    "description": "Store microservice for managing stores, reviews, and analytics",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support",
+      "email": "support@example.com"
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Store": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "name": {
+            "type": "string",
+            "example": "Tech Haven"
+          },
+          "description": {
+            "type": "string",
+            "example": "Your one-stop electronics store"
+          },
+          "address": {
+            "type": "string",
+            "example": "123 Tech Street"
+          },
+          "city": {
+            "type": "string",
+            "example": "San Francisco"
+          },
+          "state": {
+            "type": "string",
+            "example": "CA"
+          },
+          "zip_code": {
+            "type": "string",
+            "example": "94102"
+          },
+          "country": {
+            "type": "string",
+            "example": "USA"
+          },
+          "phone": {
+            "type": "string",
+            "example": "555-0101"
+          },
+          "merchant_id": {
+            "type": "string",
+            "example": "78"
+          },
+          "email": {
+            "type": "string",
+            "example": "info@techhaven.com"
+          },
+          "website": {
+            "type": "string",
+            "example": "http://techhaven.com"
+          },
+          "logo_url": {
+            "type": "string",
+            "example": "http://cdn.example.com/logo.png"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive", "pending"],
+            "example": "active"
+          },
+          "average_rating": {
+            "type": "number",
+            "example": 4.5
+          },
+          "review_count": {
+            "type": "integer",
+            "example": 128
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["name"]
+      },
+      "StoreInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Coffee Corner"
+          },
+          "description": {
+            "type": "string",
+            "example": "Best coffee in town"
+          },
+          "address": {
+            "type": "string",
+            "example": "123 Main St"
+          },
+          "city": {
+            "type": "string",
+            "example": "Boston"
+          },
+          "state": {
+            "type": "string",
+            "example": "MA"
+          },
+          "zip_code": {
+            "type": "string",
+            "example": "02101"
+          },
+          "country": {
+            "type": "string",
+            "example": "USA"
+          },
+          "phone": {
+            "type": "string",
+            "example": "555-1234"
+          },
+          "merchant_id": {
+            "type": "string",
+            "example": "78"
+          },
+          "email": {
+            "type": "string",
+            "example": "coffee@example.com"
+          },
+          "website": {
+            "type": "string",
+            "example": "http://coffeecorner.com"
+          },
+          "logo_url": {
+            "type": "string",
+            "example": "http://cdn.example.com/logo.png"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive", "pending"],
+            "example": "active"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["Food", "Beverage"]
+          }
+        },
+        "required": ["name"]
+      },
+      "Review": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440001"
+          },
+          "store_id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "user_id": {
+            "type": "string",
+            "example": "user_123"
+          },
+          "rating": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "example": 5
+          },
+          "comment": {
+            "type": "string",
+            "example": "Great service!"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ReviewInput": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "example": "user_123"
+          },
+          "rating": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "example": 5
+          },
+          "comment": {
+            "type": "string",
+            "example": "Excellent store!"
+          }
+        },
+        "required": ["rating"]
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/v1/stores": {
+      "get": {
+        "summary": "Get all stores",
+        "tags": ["Stores"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "city",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["active", "inactive", "pending"]
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of stores",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Store"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create store",
+        "tags": ["Stores"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StoreInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Store created"
+          }
+        }
+      }
+    },
+    "/api/v1/stores/search": {
+      "get": {
+        "summary": "Search stores",
+        "tags": ["Search"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results"
+          }
+        }
+      }
+    },
+    "/api/v1/stores/filter": {
+      "get": {
+        "summary": "Filter stores",
+        "tags": ["Search"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "city",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Filtered stores"
+          }
+        }
+      }
+    },
+    "/api/v1/stores/{id}": {
+      "get": {
+        "summary": "Get store by ID",
+        "tags": ["Stores"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Store ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Store details"
+          },
+          "404": {
+            "description": "Store not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a store",
+        "tags": ["Stores"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Store ID"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StoreInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Store updated"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a Store",
+        "tags": ["Stores"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Store ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Store deleted"
+          }
+        }
+      }
+    },
+    "/api/v1/stores/{id}/restore": {
+      "patch": {
+        "summary": "Restore store",
+        "tags": ["Stores"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Store ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Store restored"
+          }
+        }
+      }
+    },
+    "/api/v1/stores/{id}/reviews": {
+      "get": {
+        "summary": "Get store reviews",
+        "tags": ["Reviews"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Store ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of reviews"
+          }
+        }
+      },
+      "post": {
+        "summary": "Add review",
+        "tags": ["Reviews"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Store ID"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Review added"
+          }
+        }
+      }
+    },
+    "/api/v1/stores/{id}/statistics": {
+      "get": {
+        "summary": "Get store statistics",
+        "tags": ["Analytics"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Store ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Store statistics"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Stores",
+      "description": "Store management endpoints"
+    },
+    {
+      "name": "Search",
+      "description": "Search and filter endpoints"
+    },
+    {
+      "name": "Reviews",
+      "description": "Review management"
+    },
+    {
+      "name": "Analytics",
+      "description": "Statistics and analytics"
+    }
+  ]
+}
