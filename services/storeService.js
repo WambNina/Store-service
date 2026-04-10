@@ -1,65 +1,129 @@
-const ServiceClient = require("../utils/serviceClient");
+const axios = require('axios');
 
-class StoreService {
-  constructor() {
-    // ✅ Initialize the client
-    // this.client = new ServiceClient("STORE");
-    this.baseURL = process.env.STORE_SERVICE_URL || 'http://localhost:3000';
+class ServiceClient {
+  constructor(serviceName) {
+    this.serviceName = serviceName;
+    this.baseURLs = {
+      STORE: process.env.STORE_SERVICE_URL || 'http://localhost:3000',
+      MEDIA: process.env.MEDIA_SERVICE_URL || 'http://localhost:3001',
+      PRODUCT: process.env.PRODUCT_SERVICE_URL || 'http://localhost:3002',
+      // Add other services
+    };
+    this.baseURL = this.baseURLs[serviceName] || 'http://localhost:3000';
   }
 
   /**
-   * Verify store exists and belongs to merchant
+   * Make GET request
+   * @param {string} service - Target service name
+   * @param {string} path - API path
+   * @param {Object} params - Query parameters
+   * @param {Object} headers - Additional headers (for auth tokens)
    */
-  async validateStore(store_id, merchant_id) {
+  async get(service, path, params = null, headers = {}) {
     try {
-      // ✅ Fixed: Added /v1 to the path
-      const store = await this.client.get("STORE", `/api/v1/stores/${store_id}`);
-
-      if (!store || !store.data) {
-        throw new Error("Store not found");
-      }
-      
-      console.log("Store found:", store.data);
-      console.log("Store merchant_id:", store.data.merchant_id);
-      console.log("Provided merchant_id:", merchant_id);
-
-      // Check if merchant_id matches (handle type conversion)
-      if (String(store.data.merchant_id) !== String(merchant_id)) {
-        throw new Error('Store does not belong to this merchant');
-      }
-      
-      return store.data;
+      const response = await axios.get(`${this.baseURLs[service]}${path}`, {
+        params,
+        headers: {
+          'x-internal-service': 'true',
+          ...headers
+        },
+        timeout: 10000
+      });
+      return response.data;
     } catch (error) {
-      console.error('Store validation failed:', error.message);
-      throw error;
+      throw new Error(error.response?.data?.message || error.message);
     }
   }
 
   /**
-   * Get store details
+   * Make POST request
+   * @param {string} service - Target service name
+   * @param {string} path - API path
+   * @param {Object} data - Request body
+   * @param {Object} headers - Additional headers (for auth tokens)
    */
-  async getStore(store_id) {
+  async post(service, path, data, headers = {}) {
     try {
-      // ✅ Fixed: Added /v1 to the path
-      const store = await this.client.get("STORE", `/api/v1/stores/${store_id}`);
-      return store.data;
+      const response = await axios.post(`${this.baseURLs[service]}${path}`, data, {
+        headers: {
+          'x-internal-service': 'true',
+          ...headers
+        },
+        timeout: 10000
+      });
+      return response.data;
     } catch (error) {
-      console.error("❌ Failed to fetch store:", error.message);
-      return null;
+      throw new Error(error.response?.data?.message || error.message);
     }
   }
 
   /**
-   * Check if store is active
+   * Make PUT request
+   * @param {string} service - Target service name
+   * @param {string} path - API path
+   * @param {Object} data - Request body
+   * @param {Object} headers - Additional headers (for auth tokens)
    */
-  async isStoreActive(store_id) {
+  async put(service, path, data, headers = {}) {
     try {
-      const store = await this.getStore(store_id);
-      return store && store.status === "active";
-    } catch {
-      return false;
+      const response = await axios.put(`${this.baseURLs[service]}${path}`, data, {
+        headers: {
+          'x-internal-service': 'true',
+          ...headers
+        },
+        timeout: 10000
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.message);
+    }
+  }
+
+  /**
+   * Make DELETE request
+   * @param {string} service - Target service name
+   * @param {string} path - API path
+   * @param {Object} headers - Additional headers (for auth tokens)
+   */
+  async delete(service, path, headers = {}) {
+    try {
+      const response = await axios.delete(`${this.baseURLs[service]}${path}`, {
+        headers: {
+          'x-internal-service': 'true',
+          ...headers
+        },
+        timeout: 10000
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.message);
+    }
+  }
+
+  /**
+   * Upload file with form data
+   * @param {string} service - Target service name
+   * @param {string} path - API path
+   * @param {FormData} formData - Form data with files
+   * @param {Object} headers - Additional headers (for auth tokens)
+   */
+  async uploadFile(service, path, formData, headers = {}) {
+    try {
+      const response = await axios.post(`${this.baseURLs[service]}${path}`, formData, {
+        headers: {
+          ...formData.getHeaders(),
+          'x-internal-service': 'true',
+          ...headers
+        },
+        maxBodyLength: Infinity,
+        maxContentLength: Infinity,
+        timeout: 30000
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.message);
     }
   }
 }
 
-module.exports = new StoreService();
+module.exports = ServiceClient;

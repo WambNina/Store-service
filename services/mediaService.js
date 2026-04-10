@@ -4,7 +4,7 @@ const FormData = require('form-data');
 
 class MediaService {
   constructor() {
-    this.baseURL = process.env.MEDIA_SERVICE_URL || 'http://localhost:4002';
+    this.baseURL = process.env.MEDIA_SERVICE_URL || 'http://localhost:3001';
 
     this.client = axios.create({
       baseURL: this.baseURL,

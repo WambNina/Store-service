@@ -5,8 +5,10 @@ const ApiError = require("../utils/apiError");
 const mediaService = require("../services/mediaService");
 
 class StoreController {
+
   async create(req, res) {
     try {
+      console.log("StoreController loaded");
       const storeData = req.body;
 
       // Ensure merchant_id is present
@@ -56,34 +58,39 @@ class StoreController {
   }
 
   async getAll(req, res) {
-    try {
-      const options = {
-        page: req.query.page,
-        limit: req.query.limit,
-        status: req.query.status,
-        city: req.query.city,
-        search: req.query.q,
-        category: req.query.category,
-        sortBy: req.query.sortBy,
-        sortOrder: req.query.sortOrder,
-      };
+  try {
+    const options = {
+      page: parseInt(req.query.page) || 1,
+      limit: parseInt(req.query.limit) || 20,
+      merchant_id: req.query.merchant_id,
+      status: req.query.status,
+      city: req.query.city,
+      country: req.query.country,
+      search: req.query.q || req.query.name,
+      category: req.query.category,
+      sortBy: req.query.sortBy || 'created_at',
+      sortOrder: req.query.sortOrder || 'DESC'
+    };
 
-      const result = await StoreModel.findAll(options);
+    const result = await StoreModel.findAll(options);
 
-      res.json({
-        success: true,
-        data: result.data,
-        pagination: result.pagination,
-      });
-    } catch (error) {
-      console.error("Get stores error:", error);
-      res.status(500).json({
-        success: false,
-        message: "Failed to fetch stores",
-        error: error.message,
-      });
-    }
+    return res.status(200).json({
+      success: true,
+      count: result.data.length,
+      data: result.data,
+      pagination: result.pagination
+    });
+
+  } catch (error) {
+    console.error("Get stores error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch stores",
+      error: error.message
+    });
   }
+}
 
   async getById(req, res) {
     try {

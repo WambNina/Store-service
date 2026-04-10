@@ -7,6 +7,10 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 const storeRoutes = require('./routes/storeRoutes');
 const errorHandler = require('./middleware/errorHandler');
+const { authenticate } = require('./middleware/auth');
+
+console.log('errorHandler type:', typeof errorHandler);  // Should be 'function'
+console.log('authenticate type:', typeof authenticate);
 
 const app = express();
 
@@ -28,37 +32,20 @@ app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// // Swagger
-// const swaggerOptions = {
-//   explorer: true,
-//   customCss: `
-//     .swagger-ui .topbar { display: none }
-//     .swagger-ui .info .title { font-size: 36px; font-weight: bold; }
-//     .swagger-ui .info { margin: 20px 0; }
-//   `,
-//   customSiteTitle: 'Store Service API',
-//   swaggerOptions: {
-//     persistAuthorization: true,
-//     displayRequestDuration: true,
-//     filter: true,
-//     tryItOutEnabled: true
-//   }
-// };
-
-
 // Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
     explorer: true,
     swaggerOptions: {
         url: '/api-docs/swagger.json',
         validatorUrl: null,
+        persistAuthorization: true,
         tryItOutEnabled: true
     },
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: 'store Service API'
 }));
 
-// Health check
+// Health check (public)
 app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
@@ -67,10 +54,10 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Routes
-app.use('/api/v1/stores', storeRoutes);
+// Protected routes - authentication required
+app.use('/api/v1/stores', authenticate, storeRoutes);
 
-// 404
+// 404 handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -78,7 +65,7 @@ app.use((req, res) => {
   });
 });
 
-// Error handler
+// Error handler - MUST be last
 app.use(errorHandler);
 
 module.exports = app;

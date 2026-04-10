@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const storeController = require('../controllers/storeController');
+const { authenticate } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const { storeValidationRules, validate } = require('../utils/validators');
 
@@ -23,7 +24,7 @@ router.get('/nearby', storeController.searchNearby);
 router.post(
   '/',
   storeValidationRules.create,
-  validate,
+  authenticate,
   storeController.create
 );
 
@@ -74,6 +75,7 @@ router.patch(
   validate,
   storeController.restore
 );
+
 
 // ===============================
 // MEDIA ROUTES
