@@ -262,6 +262,82 @@ class StoreController {
     }
   }
 
+  // Approve a review
+async approveReview(req, res) {
+  try {
+    const { id, reviewId } = req.params;
+    
+    // Verify store exists
+    const store = await StoreModel.findById(id);
+    if (!store) {
+      return res.status(404).json({
+        success: false,
+        message: "Store not found"
+      });
+    }
+
+    // Approve the review
+    const approved = await StoreModel.approveReview(reviewId);
+    
+    if (!approved) {
+      return res.status(404).json({
+        success: false,
+        message: "Review not found"
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Review approved successfully"
+    });
+  } catch (error) {
+    console.error("Approve review error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to approve review",
+      error: error.message
+    });
+  }
+}
+
+// Reject a review
+async rejectReview(req, res) {
+  try {
+    const { id, reviewId } = req.params;
+    
+    // Verify store exists
+    const store = await StoreModel.findById(id);
+    if (!store) {
+      return res.status(404).json({
+        success: false,
+        message: "Store not found"
+      });
+    }
+
+    // Reject the review
+    const rejected = await StoreModel.rejectReview(reviewId);
+    
+    if (!rejected) {
+      return res.status(404).json({
+        success: false,
+        message: "Review not found"
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Review rejected successfully"
+    });
+  } catch (error) {
+    console.error("Reject review error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to reject review",
+      error: error.message
+    });
+  }
+}
+
   async searchNearby(req, res) {
     try {
       const { lat, lng, radius = 10 } = req.query;

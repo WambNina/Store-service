@@ -115,4 +115,16 @@ router.get(
   storeController.getReviews
 );
 
+// 🆕 APPROVE REVIEW
+router.patch(
+  '/:id/reviews/:reviewId/approve',
+  storeController.approveReview
+);
+
+// 🆕 REJECT REVIEW
+router.patch(
+  '/:id/reviews/:reviewId/reject',
+  storeController.rejectReview
+);
+
 module.exports = router;

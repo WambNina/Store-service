@@ -76,7 +76,11 @@
           },
           "status": {
             "type": "string",
-            "enum": ["active", "inactive", "pending"],
+            "enum": [
+              "active",
+              "inactive",
+              "pending"
+            ],
             "example": "active"
           },
           "average_rating": {
@@ -96,7 +100,9 @@
             "format": "date-time"
           }
         },
-        "required": ["name"]
+        "required": [
+          "name"
+        ]
       },
       "StoreInput": {
         "type": "object",
@@ -151,7 +157,11 @@
           },
           "status": {
             "type": "string",
-            "enum": ["active", "inactive", "pending"],
+            "enum": [
+              "active",
+              "inactive",
+              "pending"
+            ],
             "example": "active"
           },
           "categories": {
@@ -159,10 +169,15 @@
             "items": {
               "type": "string"
             },
-            "example": ["Food", "Beverage"]
+            "example": [
+              "Food",
+              "Beverage"
+            ]
           }
         },
-        "required": ["name"]
+        "required": [
+          "name"
+        ]
       },
       "Review": {
         "type": "object",
@@ -215,7 +230,41 @@
             "example": "Excellent store!"
           }
         },
-        "required": ["rating"]
+        "required": [
+          "rating"
+        ]
+      },
+      "ReviewActionResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Review approved successfully"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "example": "550e8400-e29b-41d4-a716-446655440001"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "pending",
+                  "approved",
+                  "rejected"
+                ],
+                "example": "approved"
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -228,7 +277,9 @@
     "/api/v1/stores": {
       "get": {
         "summary": "Get all stores",
-        "tags": ["Stores"],
+        "tags": [
+          "Stores"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -270,7 +321,11 @@
             "in": "query",
             "schema": {
               "type": "string",
-              "enum": ["active", "inactive", "pending"]
+              "enum": [
+                "active",
+                "inactive",
+                "pending"
+              ]
             }
           }
         ],
@@ -300,7 +355,9 @@
       },
       "post": {
         "summary": "Create store",
-        "tags": ["Stores"],
+        "tags": [
+          "Stores"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -326,7 +383,9 @@
     "/api/v1/stores/search": {
       "get": {
         "summary": "Search stores",
-        "tags": ["Search"],
+        "tags": [
+          "Search"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -352,7 +411,9 @@
     "/api/v1/stores/filter": {
       "get": {
         "summary": "Filter stores",
-        "tags": ["Search"],
+        "tags": [
+          "Search"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -384,7 +445,9 @@
     "/api/v1/stores/{id}": {
       "get": {
         "summary": "Get store by ID",
-        "tags": ["Stores"],
+        "tags": [
+          "Stores"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -412,7 +475,9 @@
       },
       "put": {
         "summary": "Update a store",
-        "tags": ["Stores"],
+        "tags": [
+          "Stores"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -446,7 +511,9 @@
       },
       "delete": {
         "summary": "Delete a Store",
-        "tags": ["Stores"],
+        "tags": [
+          "Stores"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -474,7 +541,9 @@
     "/api/v1/stores/{id}/restore": {
       "patch": {
         "summary": "Restore store",
-        "tags": ["Stores"],
+        "tags": [
+          "Stores"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -501,11 +570,8 @@
     "/api/v1/stores/{id}/reviews": {
       "get": {
         "summary": "Get store reviews",
-        "tags": ["Reviews"],
-        "security": [
-          {
-            "bearerAuth": []
-          }
+        "tags": [
+          "Reviews"
         ],
         "parameters": [
           {
@@ -515,23 +581,71 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            },
-            "description": "Store ID"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "approved",
+                "rejected"
+              ]
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "List of reviews"
+            "description": "List of reviews",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Review"
+                          }
+                        },
+                        "pagination": {
+                          "type": "object",
+                          "properties": {
+                            "total": {
+                              "type": "integer"
+                            },
+                            "page": {
+                              "type": "integer"
+                            },
+                            "limit": {
+                              "type": "integer"
+                            },
+                            "totalPages": {
+                              "type": "integer"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       },
       "post": {
         "summary": "Add review",
-        "tags": ["Reviews"],
-        "security": [
-          {
-            "bearerAuth": []
-          }
+        "tags": [
+          "Reviews"
         ],
         "parameters": [
           {
@@ -541,8 +655,7 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            },
-            "description": "Store ID"
+            }
           }
         ],
         "requestBody": {
@@ -556,7 +669,123 @@
         },
         "responses": {
           "201": {
-            "description": "Review added"
+            "description": "Review added",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stores/{id}/reviews/{reviewId}/approve": {
+      "patch": {
+        "summary": "Approve a review",
+        "description": "Change review status from pending to approved. Approved reviews are included in store statistics and average rating calculations.",
+        "tags": [
+          "Reviews"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Store ID"
+          },
+          {
+            "name": "reviewId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Review ID to approve"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Review approved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewActionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Store or review not found"
+          }
+        }
+      }
+    },
+    "/api/v1/stores/{id}/reviews/{reviewId}/reject": {
+      "patch": {
+        "summary": "Reject a review",
+        "description": "Change review status from pending to rejected. Rejected reviews are hidden from public view.",
+        "tags": [
+          "Reviews"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Store ID"
+          },
+          {
+            "name": "reviewId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Review ID to reject"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Review rejected successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewActionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Store or review not found"
           }
         }
       }
@@ -564,7 +793,9 @@
     "/api/v1/stores/{id}/statistics": {
       "get": {
         "summary": "Get store statistics",
-        "tags": ["Analytics"],
+        "tags": [
+          "Analytics"
+        ],
         "security": [
           {
             "bearerAuth": []
